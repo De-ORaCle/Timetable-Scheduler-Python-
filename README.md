@@ -1,76 +1,48 @@
 # Timetable Scheduler Documentation
 
-## Introduction
-
-The "Timetable Scheduler" is a Python program designed to create a timetable schedule for courses offered at a university or educational institution. The program takes into account different course levels, departments, and special courses with potential scheduling conflicts. It aims to distribute the courses across weekdays and timeslots in a fair and conflict-free manner.
-
-## Requirements
-
-To run the "Timetable Scheduler" program, the following requirements must be met:
-
-1. Python: The program is written in Python, so Python must be installed on the system.
-2. `tabulate` library: The program uses the `tabulate` library to format and print the timetable table.
-
-You can install the `tabulate` library using the following command:
-
-```bash
-pip install tabulate
-```
+## Overview
+The "Timetable Scheduler" is a Python program that generates a random timetable schedule for university courses. It assigns courses to different time slots on weekdays (Monday to Friday) from 8 am to 6 pm, in 2-hour intervals. The scheduler takes into account course conflicts and special courses with conflicting time slots. The output is presented in a tabular format using the "tabulate" library.
 
 ## Course Definitions
+The timetable scheduler starts with the definition of courses offered at different levels (100, 200, 300, 400) and departments. The courses are stored in a nested dictionary called `courses`. Each level has its own dictionary with department names as keys and corresponding courses as values.
 
-The program starts by defining the available courses for different levels and departments. The courses are organized into three dictionaries:
-
-1. `lower_unit_courses`: Contains courses for lower-level units (100, 200, 300, 400).
-2. `higher_unit_courses`: Contains courses for higher-level units (100, 200, 300, 400).
-3. `special_conflict_courses`: Contains courses that may have conflicts with other courses.
-
-Each dictionary is organized by course level (100, 200, 300, 400), and for each level, courses are further grouped by department. Each department contains a list of courses offered.
-
-## Timetable Schedule
-
-The timetable schedule is represented as a nested dictionary called `schedule`, which stores course assignments for each weekday and time slot. The weekdays are represented as keys (e.g., "Monday", "Tuesday"), and each day maps to a dictionary containing time slots as keys (e.g., 8, 10) and lists of assigned courses as values.
-
-The timetable schedule follows these conventions:
-
-- Each course is assigned to a time slot of 2 hours.
-- The time slots range from 8 am to 6 pm (8:00 - 18:00).
-- Courses are assigned to the schedule using the `assign_course` and `assign_course_twice_a_week` functions, which ensure conflict-free scheduling.
+## Special Courses with Conflicts
+The scheduler also takes into account special courses that have conflicts with other courses. These courses are specified in the `special_conflict_courses` dictionary, arranged by levels. Each level has its own dictionary with department names as keys and the list of conflicting course codes as values.
 
 ## Functions
+### `has_course_conflict`
+This function checks if there is a conflict between a proposed course and the existing courses scheduled for a given day and time slot. It takes the parameters:
+- `day`: The day of the week (e.g., "Monday").
+- `start_time`: The starting time of the proposed course (24-hour format, e.g., 8 for 8 am).
+- `end_time`: The ending time of the proposed course (24-hour format, e.g., 10 for 10 am).
+- `department`: The department to which the course belongs (e.g., "chemistry").
 
-The program defines several functions to manage course assignments and scheduling:
+### `assign_course`
+This function assigns a course to a specific day and time slot in the schedule. It takes the parameters:
+- `day`: The day of the week (e.g., "Monday").
+- `start_time`: The starting time of the course (24-hour format, e.g., 8 for 8 am).
+- `end_time`: The ending time of the course (24-hour format, e.g., 10 for 10 am).
+- `course`: The code of the course to be assigned (e.g., "PHY 101").
 
-1. `has_course_conflict`: This function checks if a given course in a department has a time slot conflict with other courses on a specific day.
+## Schedule Generation
+The timetable schedule is created using the following steps:
 
-2. `assign_course`: This function assigns a course to a specific day and time slot by adding it to the `schedule` dictionary.
+1. Initialize the `schedule` dictionary: A dictionary is created for each day of the week (Monday to Friday), and each day contains a nested dictionary with time slots as keys and empty lists as values. The time slots range from 8 am to 6 pm in 2-hour intervals.
 
-3. `assign_course_twice_a_week`: This function is similar to `assign_course`, but it assigns a course to two different days during the week.
+2. Assign Regular Courses: For each level and department, the scheduler randomly selects a day, a start time (from 8 am to 4 pm), and an end time (2 hours later) for each course. It checks for conflicts using the `has_course_conflict` function and assigns the course to the schedule using the `assign_course` function if there are no conflicts.
 
-## Execution
+3. Assign Special Conflict Courses: The scheduler also considers special courses with conflicts and assigns them in a similar manner as regular courses.
 
-1. The program creates an empty `schedule` dictionary with pre-defined time slots for each day of the week (from 8 am to 6 pm).
+## Output
+The timetable schedule is displayed in a tabular format using the "tabulate" library. The table includes columns for the time slot and each day of the week (Monday to Friday). The courses assigned to each time slot are displayed in the respective cells. If multiple courses are scheduled at the same time slot on the same day, they are listed vertically in the cell.
 
-2. Lower-level courses (100, 200, 300, 400) are assigned to the schedule using a random selection of days and time slots, ensuring no conflicts.
-
-3. Higher-level courses are assigned to the schedule twice a week, again avoiding conflicts.
-
-4. Special conflict courses are assigned to the schedule for their respective levels, ensuring no conflicts.
-
-5. The final timetable is formatted and printed using the `tabulate` library to display the course assignments for each day and time slot.
-
-## Restrictions
-
-1. The program assigns each course to a 2-hour time slot, and the time slots are fixed from 8 am to 6 pm. If your university's schedule has different time slot durations or a different range of hours, you will need to modify the program accordingly.
-
-2. The program assumes that courses can be scheduled on weekdays only (Monday to Friday). If your institution has courses on weekends or other specific days, you will need to adjust the program to accommodate those days.
-
-3. The program uses a random assignment strategy for lower-level courses. As a result, running the program multiple times may produce different timetables. If you prefer a deterministic approach or have specific requirements for course assignments, you should modify the assignment logic.
-
-4. The program does not consider any prerequisites or course-specific constraints. It only focuses on avoiding conflicts between courses on the timetable.
-
-5. The program may not handle all possible edge cases related to course assignments. Additional validation and testing may be necessary to ensure robustness for specific scenarios.
+## Restrictions and Possible Improvements
+- The current implementation does not account for class durations other than 2 hours. It assumes all courses take 2 hours per day.
+- The scheduler assigns courses randomly without considering factors like student preferences, faculty availability, or room availability.
+- It is possible for the scheduler to get stuck in an infinite loop if it cannot find a suitable time slot for a course due to conflicts. Implementing a mechanism to handle such cases would be beneficial.
+- The "tabulate" library is used for display purposes, but the output could be further enhanced with additional formatting options and better readability.
+- There may be performance issues when scheduling a large number of courses or when the number of time slots is limited.
+- The scheduler is tailored to a specific dataset of courses and may need modification to adapt to different university course structures.
 
 ## Conclusion
-
-The "Timetable Scheduler" is a basic Python program that generates a timetable schedule for courses offered at a university. It allows you to specify different course levels, departments, and special conflict courses. The program uses a random assignment approach to distribute the courses across weekdays and time slots while avoiding conflicts. However, due to its simplicity, it may require modifications to suit specific institutional requirements or constraints.
+The "Timetable Scheduler" is a basic program that generates a random timetable for university courses while considering course conflicts. It serves as a starting point for more sophisticated scheduling algorithms and can be further improved to cater to specific requirements and constraints of universities or educational institutions.
